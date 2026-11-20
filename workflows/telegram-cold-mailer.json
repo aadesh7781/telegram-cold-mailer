@@ -1,0 +1,324 @@
+{
+  "name": "Telegram Cold Email Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -560,
+        128
+      ],
+      "id": "3254b9ad-f32a-499f-b79d-1c3ca6599d90",
+      "name": "Telegram Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b88ff48f-7f9d-49f7-a704-f128ba3b2e37",
+              "name": "recipient_email",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -208,
+        -48
+      ],
+      "id": "4a048af7-5692-4527-b8c6-99190c4484a0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e04672b4-71ac-4332-93ca-c39606a8e179",
+              "leftValue": "={{ $json.recipient_email }}",
+              "rightValue": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -64,
+        -48
+      ],
+      "id": "f7dcbecb-69a1-43bd-ad4d-3f6cd1f9a164",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.recipient_email }}",
+        "subject": "Application for AI / Python Developer Opportunities",
+        "emailType": "text",
+        "message": "=\n{{\n[\n  \"Dear Hiring Team,\",\n  \"\",\n  \"I hope you are doing well.\",\n  \"\",\n  \"I am reaching out to express my interest in opportunities related to AI Engineering, Python Development, and LLM Engineering.\",\n  \"\",\n  \"My technical experience includes:\",\n  \"\",\n  \"• Python and FastAPI\",\n  \"• Retrieval-Augmented Generation (RAG)\",\n  \"• LLM integrations and AI Agents\",\n  \"• Workflow automation using n8n\",\n  \"• MongoDB and API development\",\n  \"\",\n  \"I enjoy building practical AI-powered applications and solving real-world problems through technology.\",\n  \"\",\n  \"I have attached my resume for your consideration. I would appreciate the opportunity to discuss any relevant openings at your organisation.\",\n  \"\",\n  \"Thank you for your time and consideration.\",\n  \"\",\n  \"Best regards,\",\n  \"[YOUR NAME]\",\n  \"\"\n].join(\"\\n\")\n}}\n",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -128
+      ],
+      "id": "5d0c62ed-5810-4648-bff7-b39ef9930f87",
+      "name": "Send a message"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_RESUME.pdf"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        128,
+        -128
+      ],
+      "id": "1fef8672-465b-472d-a987-3855894491d5",
+      "name": "Download file"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=✅ Cold Email Sent Successfully!  📧 Recipient: {{ $('Edit Fields').item.json.recipient_email }}  📎 Resume: Attached  🚀 Keep applying!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        -128
+      ],
+      "id": "8dca7283-3e9d-4051-abdd-ebb7a47f305b",
+      "name": "Send a text message"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_TRACKER_SHEET"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Edit Fields').item.json.recipient_email }}",
+            "Date sent": "={{ $now.toISO() }}",
+            "Status": "Sent"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date sent",
+              "displayName": "Date sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "5c9c72be-c438-4ed3-acbf-ddc8aa8c3ecd",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b9b78f23-6fe0-4386-a816-398ad9fd2b17",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -416,
+        0
+      ],
+      "id": "1825a51f-bbfc-4781-84e1-cd196600c2c8",
+      "name": "If1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
