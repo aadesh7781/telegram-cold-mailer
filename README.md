@@ -3,8 +3,7 @@
 
 An automated cold-emailing system built with **n8n, Telegram, Gmail, Google Drive, and Google Sheets**.
 
-Send a recruiter's email address to your Telegram bot, and the workflow automatically sends a professional email with your resume attached. Every successful email is recorded in Google Sheets, and you receive a Telegram confirmation.
-
+Send a recruiter's email address to your Telegram bot, and the workflow automatically sends a professional email with your resume attached. Every successful email is recorded in Google Sheets, and you receive a Telegram confirmation
 ## 📸 Workflow Architecture
 
 ![Cold Email Automation Workflow](./cold-email-automation-workflow.png)
